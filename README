@@ -1,0 +1,6 @@
+A dirt simple DSL for local and remote deployments
+
+== TODO
+startup commands
+better error handling
+rollback support
