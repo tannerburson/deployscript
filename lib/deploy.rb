@@ -35,12 +35,13 @@ module Deploy
 			run_command update
 			run_command stop
 			run_command start
-			run_command cmd unless cmd.empty?
+			run_command deploy unless cmd.empty?
 			@exec.close if @exec.respond_to? :close
 		end
 
 		protected
 		def run_command(command)
+			retval = ''
 			case command
 			when Array
 				puts "DEPLOY: executing " << command.join(" && ") if @verbose
@@ -53,6 +54,7 @@ module Deploy
 				cmd = "cd " << @app_path << " && " << cmd unless @app_path.empty?
 				retval = deploy_exec(cmd)
 			end
+			puts retval
 		end
 
 		def command(name,cmd)
@@ -61,7 +63,11 @@ module Deploy
 		end
 
 		def deploy_exec(command)
-			@exec.exec!(command)
+			ret = ''
+			@exec.exec!(command) do |c,s,d|
+			  ret << d
+			end
+			ret
 		end
 	end
 
@@ -81,7 +87,7 @@ end
 
 ## So we can cheat when dealing with SSH
 module Kernel
-	def exec!(command)
+	def exec!(command,&blk)
 		system(command)
 	end
 end
